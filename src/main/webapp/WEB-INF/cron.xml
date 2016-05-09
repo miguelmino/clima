@@ -1,0 +1,11 @@
+<cronentries>
+  <cron>
+    <url>/greetings/cron</url>
+    <description>Se ejecuta cada 10 anios</description>
+    <schedule>every 3600 minutes</schedule>
+<!--     <retry-parameters> -->
+<!--       <min-backoff-seconds>2.5</min-backoff-seconds> -->
+<!--       <max-doublings>5</max-doublings> -->
+<!--     </retry-parameters> -->
+  </cron>
+</cronentries>
