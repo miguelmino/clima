@@ -17,6 +17,8 @@
 	
 	
 	
+	
+	
 		<property name="app.version" value="${app.version}" />
 	
 		<property name="ae-cloudsql.cloudsql-database-url" value="jdbc:google:mysql://clima-1303:clima/clima?user=root&amp;password=pass" />

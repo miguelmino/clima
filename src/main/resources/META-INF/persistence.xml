@@ -12,9 +12,9 @@
     <properties>
 
 
-      <property name="javax.persistence.jdbc.user" value="user" />
+      <property name="javax.persistence.jdbc.user" value="root" />
       <property name="hibernate.show_sql" value="true" />
-      <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+      <property name="hibernate.hbm2ddl.auto" value="update" />
       <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
       
 
