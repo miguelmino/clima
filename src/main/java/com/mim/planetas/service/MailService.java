@@ -21,17 +21,18 @@ import com.mim.planetas.rest.ClimaResource;
 @Service
 public class MailService  implements Serializable  {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 5493787119118527807L;
-	
 	
 	final static Logger logger = LoggerFactory.getLogger(ClimaResource.class);
 
 	public void send () {
 		send("Test Email");
 	}
+	
+	/**
+	 * 
+	 * @param subject
+	 */
     public void send(String subject ) {
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
@@ -43,7 +44,7 @@ public class MailService  implements Serializable  {
 			msg.addRecipient(Message.RecipientType.TO, new InternetAddress("miguelmino@gmail.com", "Mr. User"));
 			msg.setSubject(subject);
 			msg.setSentDate(new Date());
-			msg.setText("Se ha realizado una consulta del clima.");
+			msg.setText("Se ha realizado una accion en clima.");
 			msg.saveChanges();
 				
 			Transport.send(msg);
@@ -53,8 +54,7 @@ public class MailService  implements Serializable  {
 		} catch (MessagingException e) {
 			logger.error("test cron MessagingException" + e.getMessage());
 			e.printStackTrace();
-			
-			
+
 		} catch (UnsupportedEncodingException e) {
 			logger.error("test cron UnsupportedEncodingException");
 		}

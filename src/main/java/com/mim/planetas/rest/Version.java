@@ -1,5 +1,6 @@
 package com.mim.planetas.rest;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +12,11 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskHandle;
+import com.google.appengine.api.taskqueue.TaskOptions;
 
 @Path("/version")
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,5 +31,17 @@ public class Version {
 		return Response.ok(response).build();
 	}
 
+	@GET
+	@Path("/task")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response task() throws IOException {
 
+		Queue q = QueueFactory.getDefaultQueue();
+		TaskOptions.Method method = TaskOptions.Method.GET;
+		String url = "/clima/engine";
+		TaskOptions opts = TaskOptions.Builder.withUrl(url).method(method);
+		TaskHandle handle = q.add(opts);
+		return Response.ok().build();
+	}
+	
 }

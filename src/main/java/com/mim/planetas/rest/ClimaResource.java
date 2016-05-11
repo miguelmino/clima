@@ -5,12 +5,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -20,11 +17,7 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-//[END simple_includes]
 
-import com.google.appengine.api.taskqueue.DeferredTask;
-import com.google.appengine.api.taskqueue.DeferredTaskContext;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
@@ -32,7 +25,7 @@ import com.google.appengine.api.taskqueue.TaskOptions;
 import com.mim.planetas.dao.EMF;
 import com.mim.planetas.model.Clima;
 import com.mim.planetas.model.Planeta;
-import com.mim.planetas.service.MailService;
+import com.mim.planetas.model.Solucion;
 import com.mim.planetas.service.PlanetaService;
 
 /**
@@ -43,18 +36,13 @@ import com.mim.planetas.service.PlanetaService;
 @Path("/clima")
 @Produces(MediaType.APPLICATION_JSON)
 public class ClimaResource implements Serializable {
-	
-	
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2359551600046025138L;
-
 
 	final static Logger logger = LoggerFactory.getLogger(ClimaResource.class);
 
-
+	
+	
 	/**
 	 * Ej: GET → http://....../clima?dia=566 → Respuesta: {“dia”:566,
 	 * “clima”:”lluvia”}
@@ -62,40 +50,40 @@ public class ClimaResource implements Serializable {
 	 * @param dia
 	 * @return
 	 */
-
-	@Autowired
-	private MailService mailService;
-	
-	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response planetas(@QueryParam("dia") Integer dia) {
-
+		
+		String select = "SELECT c FROM Clima c where c.dia=:dia";
 		EntityManagerFactory emf = EMF.get();
 		EntityManager em = emf.createEntityManager();
-
 		em = emf.createEntityManager();
 		em.getTransaction().begin();
-		List<Clima> result = em.createQuery("SELECT c FROM Clima c where c.dia=:dia").setParameter("dia", dia)
-				.getResultList();
-
+		List<Clima> result = em.createQuery(select)
+							   .setParameter("dia",dia).getResultList();
 		em.getTransaction().commit();
 		em.close();
 
 		Map<String, String> response = new HashMap<String, String>();
 		response.put("dia", dia.toString());
 		response.put("clima", result.get(0).getDescripcion());
+		
 		return Response.ok(response).build();
 
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	@GET
-	@Path("/engine")
+	@Path("/calcular")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response engine() {
+	public Response calcular() {
 
-		int anios =  10;
-		int dias  = 360 * anios; // Se toman el año del planeta Ferengi
+		Integer anios =  10;
+		Integer dias  = 360 * anios; // Se toman el año del planeta Ferengi
 
 		EntityManagerFactory emf = EMF.get();
 		EntityManager em = emf.createEntityManager();
@@ -104,12 +92,53 @@ public class ClimaResource implements Serializable {
 		List<Planeta> result = em.createQuery("SELECT p FROM Planeta p").getResultList();
 		em.getTransaction().commit();
 		em.close();
+		List<Clima> climas = null ;
+		Solucion solucion = PlanetaService.calcular(dias, Boolean.FALSE, result);
 
-		Map response = PlanetaService.calcular(dias, result.get(0), result.get(1), result.get(2));
-
-		return Response.ok(response).build();
+		return Response.ok(solucion).build();
 
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@GET
+	@Path("/engine")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response job() {
+
+		Integer anios =  10;
+		Integer dias  = 360 * anios; // Se toman el año del planeta Ferengi
+
+		EntityManagerFactory emf = EMF.get();
+		EntityManager em = emf.createEntityManager();
+		em = emf.createEntityManager();
+		em.getTransaction().begin();
+		List<Planeta> result = em.createQuery("SELECT p FROM Planeta p").getResultList();
+		em.getTransaction().commit();
+
+
+		Solucion solucion = PlanetaService.calcular(dias,  Boolean.TRUE, result);
+
+		em.getTransaction().begin();
+		
+		for(Clima clima : solucion.getClimas()){
+			em.persist(clima);
+		}
+		
+		em.getTransaction().commit();
+		em.close();
+		
+		return Response.ok(solucion).build();
+	}
+	
+
+	/**
+	 * 
+	 * @return
+	 */
 
 	@GET
 	@Path("/climas")
@@ -120,7 +149,7 @@ public class ClimaResource implements Serializable {
 		EntityManager em = emf.createEntityManager();
 		em = emf.createEntityManager();
 		em.getTransaction().begin();
-		List<Clima> result = em.createQuery("SELECT p FROM Clima p").getResultList();
+		List<Clima> result = em.createQuery("SELECT c FROM Clima c").getResultList();
 		em.getTransaction().commit();
 		em.close();
 
@@ -129,7 +158,7 @@ public class ClimaResource implements Serializable {
 	}
 	
 	/**
-	 * Ejemplo de ejecucion de Tarea
+	 * ejecucion de Tarea
 	 * 
 	 * @return
 	 * @throws IOException

@@ -1,6 +1,9 @@
 package com.mim.planetas.service;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -12,14 +15,31 @@ import com.mim.planetas.dao.EMF;
 import com.mim.planetas.model.Clima;
 import com.mim.planetas.model.Planeta;
 import com.mim.planetas.model.Punto;
+import com.mim.planetas.model.Solucion;
 
+/**
+ * 
+ * 
+ * @author mmiño
+ *
+ */
 @Service
-public class PlanetaService {
+public class PlanetaService  implements Serializable  {
 
-	//	Double a = null,b = null,c = null;
-	//	Double s = 0.5 * (a + b + c);
-	//	Double area = Math.sqrt(s * (s-a) *(s-b) * (s-c));
-		
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3149360284108544624L;
+
+
+	/**
+	 * 
+	 * @param dia
+	 * @param velocidad
+	 * @param distancia
+	 * @return
+	 */
 	public static Punto getPunto(Integer dia, Double velocidad,Double distancia) {
 		Double v = dia * velocidad * (2 * Math.PI) / 360;
 		Double x = Math.cos(v) * distancia;
@@ -31,8 +51,11 @@ public class PlanetaService {
 	 * Se valida a traves de la ecuacion de la recta la pertencia de p0
 	 * en la ecuacion formada por los puntos p1 y p2
 	 * 
+	 * @param p0
+	 * @param p1
+	 * @param p2
+	 * @return
 	 */
-	
 	public static Boolean planetasEnLinea(Planeta p0, Planeta p1, Planeta p2) {
 		return puntosEnLinea(p0.punto(), p1.punto(), p2.punto());
 	}
@@ -53,6 +76,11 @@ public class PlanetaService {
 	/**
 	 * Si los tres planetas estan en linea con el sol la diferencia debe ser 
 	 * igual a 0 o 180 entre ambas
+
+	 * @param dif1
+	 * @param dif2
+	 * @param dif3
+	 * @return
 	 */
 	public static Boolean planetasEnLineaConSol(Double dif1 ,Double dif2 , Double dif3 ){
 		
@@ -74,6 +102,12 @@ public class PlanetaService {
 				distancia(vulcano.punto()  ,ferengi.punto()  ) ;
 	}
 	
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	public static Double distancia(Punto a ,Punto b){
 		Double distancia =  Math.pow(a.getX()- b.getX(),2)  + Math.pow(a.getY()- b.getY(),2) ;
 		return Math.sqrt(distancia) ;
@@ -94,11 +128,25 @@ public class PlanetaService {
 		
 	}
 	
+	/**
+	 * 
+	 * @param ferengi
+	 * @param betasoide
+	 * @param vulcano
+	 * @return
+	 */
 	public static Boolean planetasRodeandoElSol(Planeta ferengi, Planeta betasoide, Planeta vulcano ){
 		return planetasEnLineaConSol(ferengi.punto(),betasoide.punto(), vulcano.punto());
 	}
 		
 		
+	/**
+	 * 
+	 * @param p0
+	 * @param p1
+	 * @param p2
+	 * @return
+	 */
 	public static Boolean planetasEnLineaConSol(Punto p0, Punto p1, Punto p2){
 		
 		Punto cerocero = new Punto(0D,0D);
@@ -111,6 +159,15 @@ public class PlanetaService {
 
 	}
 		
+	/**
+	 * 
+	 * @param dias
+	 * @param Ferengi
+	 * @param Betasoide
+	 * @param Vulcano
+	 * @return
+	 */
+	@Deprecated
 	public static Map calcular(Integer dias ,Planeta Ferengi, Planeta Betasoide, Planeta Vulcano){
 		
 		Integer cantPeriodosDeSequia = 0 ;
@@ -122,8 +179,6 @@ public class PlanetaService {
 		EntityManagerFactory emf = EMF.get();
 		EntityManager em = emf.createEntityManager();
 		
-		
-		
 		for(int dia=0 ; dia < dias; dia++){
 			String clima= "lluvia";
 			Ferengi.setDia(dia);
@@ -134,24 +189,18 @@ public class PlanetaService {
 			Double dif2 = Ferengi.diferenciaAngular(Vulcano);
 			Double dif3 = Betasoide.diferenciaAngular(Vulcano);
 
-//			1. ¿Cuántos períodos de sequía habrá?
-//			2. ¿Cuántos períodos de lluvia habrá y qué día será el pico máximo de lluvia?
-//			3. ¿Cuántos períodos de condiciones óptimas de presión y temperatura habrá?
-					
-			if(PlanetaService.planetasEnLineaConSol(dif1, dif2, dif3)){
-				clima="sequia";
-				cantPeriodosDeSequia++;
-				
-			}
-
 			if(PlanetaService.planetasEnLinea(Ferengi, Betasoide, Vulcano)){
 				clima="optimo";
 				System.out.println(String.format("CONDICIONES ÓPTIMAS %s", dia));
 				cantPeriodosOptimos++;
 			}
-			
+
+			if(PlanetaService.planetasEnLineaConSol(dif1, dif2, dif3)){
+				clima="sequia";
+				cantPeriodosDeSequia++;
+			}
+
 			if(PlanetaService.planetasRodeandoElSol(Ferengi,Betasoide,Vulcano)){
-				
 				cantPeriodosDeLluvia++;
 				Double perimetro  = PlanetaService.perimetroEntrePlanetas(Ferengi, Betasoide, Vulcano);
 				if(picoMaximoDeLluvia < perimetro ){
@@ -159,15 +208,12 @@ public class PlanetaService {
 					picoMaximoDeLluvia = perimetro;
 				}
 			}
-
 			em.getTransaction().begin();
 			em.persist(new Clima(dia,clima));
 			em.getTransaction().commit();
 
-
 		}
-		
-		
+
 		em.close();
 		
 		Map<String,Object> response = new HashMap<String,Object> ();
@@ -178,6 +224,60 @@ public class PlanetaService {
 		response.put("cantPeriodosOptimos", cantPeriodosOptimos );
 		
 		return response ;
+	} 
+	
+
+	/**
+	 * Calculo del clime en los siguientes X dias ingresados
+	 * Si la variable climas es distinta de null se devuelven el listado de climas
+	 * @param dias
+	 * @param climas
+	 * @param planetas
+	 * @return
+	 */
+	public static Solucion calcular(Integer dias,Boolean conClimas,List<Planeta> planetas){
+		
+		Integer cantPeriodosDeSequia = 0 ;
+		Integer cantPeriodosDeLluvia = 0 ;
+		Double  picoMaximoDeLluvia   = 0D;
+		Integer cantPeriodosOptimos  = 0 ;
+		List<Clima> climas = new ArrayList<Clima>();
+		
+		for(int dia=0 ; dia < dias; dia++){
+			String clima= "lluvia";
+
+			planetas.get(0).setDia(dia);
+			planetas.get(1).setDia(dia);
+			planetas.get(2).setDia(dia);
+			
+			Double dif1 = planetas.get(0).diferenciaAngular(planetas.get(1));
+			Double dif2 = planetas.get(0).diferenciaAngular(planetas.get(2));
+			Double dif3 = planetas.get(1).diferenciaAngular(planetas.get(2));
+
+			if(PlanetaService.planetasEnLinea( planetas.get(0),  planetas.get(1),  planetas.get(2))){
+				clima="optimo";
+				cantPeriodosOptimos++;
+			}
+
+			if(PlanetaService.planetasEnLineaConSol(dif1, dif2, dif3)){
+				clima="sequia";
+				cantPeriodosDeSequia++;
+			}
+
+			if(PlanetaService.planetasRodeandoElSol(planetas.get(0),  planetas.get(1),  planetas.get(2))){
+				cantPeriodosDeLluvia++;
+				Double perimetro  = PlanetaService.perimetroEntrePlanetas(planetas.get(0), planetas.get(1),planetas.get(2));
+				if(picoMaximoDeLluvia < perimetro ){
+					picoMaximoDeLluvia = perimetro;
+				}
+			}
+			
+			if(conClimas == Boolean.TRUE)
+				climas.add(new Clima(dia,clima));
+		}
+		
+
+		return new Solucion(cantPeriodosDeSequia,cantPeriodosDeLluvia,picoMaximoDeLluvia,cantPeriodosOptimos,climas); 
 	}
 	
 	

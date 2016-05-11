@@ -35,7 +35,7 @@ public class ClimaResourceTest extends JerseyTest {
 	@Test
 	public void testPlanetaInit() {
 
-		//target("planeta/init").request().get();
+	//	target("planeta/init").request().get();
 
 	}
 	
@@ -49,6 +49,7 @@ public class ClimaResourceTest extends JerseyTest {
 		List json = response.readEntity(List.class);
 		
 		assertEquals(3, json.size());
+		
 
 	}
 	
