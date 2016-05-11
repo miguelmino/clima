@@ -1,13 +1,20 @@
 package com.mim.planetas.service;
 import static org.junit.Assert.assertEquals;
 
+import java.io.Serializable;
+
 import org.junit.Test;
 
 import com.mim.planetas.model.Punto;
 import com.mim.planetas.service.PlanetaService;
 
-public class PlanetaManagerTest {
+public class PlanetaManagerTest implements Serializable {
 	
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4421187516292059740L;
 	
 	@Test
 	public void distanciaEntrePuntos() {

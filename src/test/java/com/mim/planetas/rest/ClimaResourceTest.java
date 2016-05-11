@@ -31,6 +31,7 @@ public class ClimaResourceTest extends JerseyTest {
 	 * Respuesta: {“dia”:566, “clima”:”lluvia”}
 	 * 
 	 */
+	
 	@Test
 	public void testPlanetaInit() {
 
@@ -42,7 +43,7 @@ public class ClimaResourceTest extends JerseyTest {
 	@Test
 	public void testPlanetaAll() {
 
-		target("planeta/init").request().get();
+		//target("planeta/init").request().get();
 		
 		final Response response = target("planeta/all").request().get();
 		List json = response.readEntity(List.class);

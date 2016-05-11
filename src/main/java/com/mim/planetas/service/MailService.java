@@ -1,4 +1,5 @@
 package com.mim.planetas.service;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Properties;
@@ -18,31 +19,31 @@ import org.springframework.stereotype.Service;
 import com.mim.planetas.rest.ClimaResource;
 
 @Service
-public class MailService {
+public class MailService  implements Serializable  {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5493787119118527807L;
+	
 	
 	final static Logger logger = LoggerFactory.getLogger(ClimaResource.class);
 
-    public void send() {
+	public void send () {
+		send("Test Email");
+	}
+    public void send(String subject ) {
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
 
 		try {
 
 			Message msg = new MimeMessage(session);
-			msg.setFrom(new InternetAddress("anything@clima-1303.appspotmail.com","clima-1303"));
+			msg.setFrom(new InternetAddress("admin@clima-1303.appspotmail.com","clima-1303"));
 			msg.addRecipient(Message.RecipientType.TO, new InternetAddress("miguelmino@gmail.com", "Mr. User"));
-			msg.setSubject("Consulta del Clima");
-
+			msg.setSubject(subject);
 			msg.setSentDate(new Date());
-//			Multipart mPart = new MimeMultipart();
-//			BodyPart messageBodyPart = new MimeBodyPart();
-//			String cont ="hello";
-//			messageBodyPart.setContent(cont,"text/plain");
-//			mPart.addBodyPart(messageBodyPart);
-//			
-			
 			msg.setText("Se ha realizado una consulta del clima.");
-			
 			msg.saveChanges();
 				
 			Transport.send(msg);
