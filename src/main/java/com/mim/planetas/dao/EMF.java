@@ -21,6 +21,9 @@ public final class EMF {
 		} else {
 			properties.put("javax.persistence.jdbc.driver", "com.mysql.jdbc.Driver");
 			properties.put("javax.persistence.jdbc.url", System.getProperty("ae-cloudsql.local-database-url"));
+			
+			if(properties.get("javax.persistence.jdbc.url") == null)
+				properties.put("javax.persistence.jdbc.url", "jdbc:mysql://localhost:3306/climalocal?user=root&amp;password=");
 		}
 	}
 

@@ -1,4 +1,4 @@
-package com.mim.planetas;
+package com.mim.planetas.service;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;

@@ -29,11 +29,10 @@ public class ClimaResource {
 
 	final static Logger logger = LoggerFactory.getLogger(ClimaResource.class);
 
-	@Autowired
-	private PlanetaService planetaService;
+
 	/**
-	 * Ej: GET → http://....../clima?dia=566 
-	 * → Respuesta: {“dia”:566, “clima”:”lluvia”}
+	 * Ej: GET → http://....../clima?dia=566 → Respuesta: {“dia”:566,
+	 * “clima”:”lluvia”}
 	 * 
 	 * @param dia
 	 * @return
@@ -41,29 +40,31 @@ public class ClimaResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response planetas(@QueryParam("dia") Integer dia) {
-		
+
 		EntityManagerFactory emf = EMF.get();
 		EntityManager em = emf.createEntityManager();
-		
+
 		em = emf.createEntityManager();
 		em.getTransaction().begin();
-		List<Clima> result = em.createQuery("SELECT p FROM Clima c where dia=" + dia).getResultList();
+		List<Clima> result = em.createQuery("SELECT c FROM Clima c where c.dia=:dia").setParameter("dia", dia)
+				.getResultList();
+
 		em.getTransaction().commit();
 		em.close();
-		
-		Map<String,String> response = new HashMap<String,String> ();
-		response.put("dia"  , dia.toString());
+
+		Map<String, String> response = new HashMap<String, String>();
+		response.put("dia", dia.toString());
 		response.put("clima", result.get(0).getDescripcion());
 		return Response.ok(response).build();
 
 	}
-	
+
 	@GET
 	@Path("/engine")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response engine(@QueryParam("dia") Integer dia) {
-		
-		int anios = 10 ;
+
+		int anios = 10;
 		int dias = 360 * anios; // Se toman el año del planeta Ferengi
 
 		EntityManagerFactory emf = EMF.get();
@@ -73,9 +74,9 @@ public class ClimaResource {
 		List<Planeta> result = em.createQuery("SELECT p FROM Planeta p").getResultList();
 		em.getTransaction().commit();
 		em.close();
-		
+
 		Map response = PlanetaService.calcular(dias, result.get(0), result.get(1), result.get(2));
-		
+
 		return Response.ok(response).build();
 
 	}

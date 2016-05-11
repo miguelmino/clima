@@ -15,15 +15,11 @@
 
 	<system-properties>
 	
-	
-	
-	
-	
 		<property name="app.version" value="${app.version}" />
 	
 		<property name="ae-cloudsql.cloudsql-database-url" value="jdbc:google:mysql://clima-1303:clima/clima?user=root&amp;password=pass" />
 
-		<property name="ae-cloudsql.local-database-url" value="jdbc:mysql://173.194.234.38:3306/clima?user=user&amp;password=user" />
+		<property name="ae-cloudsql.local-database-url" value="jdbc:mysql://localhost:3306/climalocal?user=root&amp;password=" />
 
 		<property name="java.util.logging.config.file" value="WEB-INF/logging.properties" />
 	</system-properties>
